@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片属性排行榜生成器</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <style>
+    </style>
+    <script src="main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>图片属性排行榜生成器</h1>
+        
+        <!-- 进度指示器 -->
+        <div class="progress-bar">
+            <div class="progress-line" id="progress-line"></div>
+            <div class="progress-step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">上传图片</div>
+            </div>
+            <div class="progress-step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">输入属性</div>
+            </div>
+            <div class="progress-step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">比较排序</div>
+            </div>
+            <div class="progress-step" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-label">选择模板</div>
+            </div>
+            <div class="progress-step" data-step="5">
+                <div class="step-number">5</div>
+                <div class="step-label">生成榜单</div>
+            </div>
+        </div>
+        
+        <!-- 步骤1: 上传图片 -->
+        <div class="step active" id="step1">
+            <h2>上传图片</h2>
+            <p>上传多组图片并为它们命名。图片将被裁剪为正方形。</p>
+            
+            <div class="upload-area" id="upload-area">
+                <i>📁</i>
+                <p>拖放图片到这里，或点击选择文件</p>
+                <input type="file" id="file-input" multiple accept="image/*" style="display: none;">
+                <button class="btn" id="select-files-btn">选择文件</button>
+            </div>
+            
+            <div class="image-list" id="image-list"></div>
+            
+            <div class="btn-group">
+                <button class="btn" id="next-step1">下一步</button>
+            </div>
+        </div>
+        
+        <!-- 步骤2: 输入属性 -->
+        <div class="step" id="step2">
+            <h2>输入属性</h2>
+            <p>请输入要比较的属性名称（例如：颜值、强度、人气等）</p>
+            
+            <div class="form-group">
+                <label for="attribute-input">属性名称</label>
+                <input type="text" id="attribute-input" class="form-control" placeholder="例如：颜值">
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn" id="prev-step2">上一步</button>
+                <button class="btn" id="next-step2">下一步</button>
+            </div>
+        </div>
+        
+        <!-- 步骤3: 比较排序 -->
+        <div class="step" id="step3">
+            <h2>比较排序</h2>
+            <p id="comparison-instruction">请选择<span id="attribute-name">属性</span>更强的一项：</p>
+            
+            <div class="comparison-container" id="comparison-container">
+                <!-- 这里会动态生成比较项目 -->
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn" id="prev-step3">上一步</button>
+                <button class="btn" id="skip-comparison" style="display: none;">跳过剩余比较</button>
+                <button class="btn" id="next-step3" style="display: none;">下一步</button>
+            </div>
+        </div>
+        
+        <!-- 步骤4: 选择模板 -->
+        <div class="step" id="step4">
+            <h2>选择排行榜模板</h2>
+            <p>选择排行榜的样式和结构</p>
+            
+            <div class="form-group">
+                <label for="template-select">模板类型</label>
+                <select id="template-select" class="form-control">
+                    <option value="equal">等分型</option>
+                    <option value="pyramid">金字塔型</option>
+                    <option value="spindle">纺锤型</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="rows-input">行数</label>
+                <input type="number" id="rows-input" class="form-control" min="1" max="10" value="3">
+            </div>
+            
+            <div class="template-options">
+                <div class="template-option selected" data-template="equal">
+                    <div class="template-preview">
+                        <!-- 等分型预览 -->
+                        <div style="display: flex; height: 100%;">
+                            <div style="flex: 1; background: #4a6fa5; margin: 2px;"></div>
+                            <div style="flex: 1; background: #6b8cbc; margin: 2px;"></div>
+                            <div style="flex: 1; background: #8da9d4; margin: 2px;"></div>
+                        </div>
+                    </div>
+                    <div>等分型</div>
+                </div>
+                <div class="template-option" data-template="pyramid">
+                    <div class="template-preview">
+                        <!-- 金字塔型预览 -->
+                        <div style="display: flex; flex-direction: column; align-items: center; height: 100%;">
+                            <div style="width: 30%; height: 20%; background: #4a6fa5; margin: 2px;"></div>
+                            <div style="width: 60%; height: 30%; background: #6b8cbc; margin: 2px;"></div>
+                            <div style="width: 90%; height: 50%; background: #8da9d4; margin: 2px;"></div>
+                        </div>
+                    </div>
+                    <div>金字塔型</div>
+                </div>
+                <div class="template-option" data-template="spindle">
+                    <div class="template-preview">
+                        <!-- 纺锤型预览 -->
+                        <div style="display: flex; flex-direction: column; align-items: center; height: 100%;">
+                            <div style="width: 60%; height: 30%; background: #6b8cbc; margin: 2px;"></div>
+                            <div style="width: 90%; height: 40%; background: #4a6fa5; margin: 2px;"></div>
+                            <div style="width: 60%; height: 30%; background: #6b8cbc; margin: 2px;"></div>
+                        </div>
+                    </div>
+                    <div>纺锤型</div>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn" id="prev-step4">上一步</button>
+                <button class="btn" id="next-step4">下一步</button>
+            </div>
+        </div>
+        
+        <!-- 步骤5: 生成榜单 -->
+        <div class="step" id="step5">
+            <h2>生成排行榜</h2>
+            <p>您的排行榜已生成，可以保存图片或重新开始</p>
+            
+            <div class="ranking-preview">
+                <canvas id="ranking-canvas" width="800" height="600"></canvas>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn" id="prev-step5">上一步</button>
+                <button class="btn" id="save-ranking">保存图片</button>
+                <button class="btn btn-secondary" id="restart">重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    
+    </script>
+</body>
+</html>
