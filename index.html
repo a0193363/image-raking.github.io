@@ -3,175 +3,632 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片属性排行榜生成器</title>
+    <title>表格生成器</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-    <style>
-    </style>
-    <script src="main.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 </head>
 <body>
+    <header>
+        <h1>表格生成器</h1>
+    </header>
+    
     <div class="container">
-        <h1>图片属性排行榜生成器</h1>
-        
-        <!-- 进度指示器 -->
         <div class="progress-bar">
-            <div class="progress-line" id="progress-line"></div>
-            <div class="progress-step active" data-step="1">
-                <div class="step-number">1</div>
-                <div class="step-label">上传图片</div>
+            <div class="progress-step active">1</div>
+            <div class="progress-step">2</div>
+            <div class="progress-step">3</div>
+            <div class="progress-step">4</div>
+        </div>
+        
+        <!-- 第一页：输入表格标题和数量 -->
+        <div id="page1" class="page active">
+            <h2>创建表格</h2>
+            <div class="form-group">
+                <label for="tableTitle">表格标题</label>
+                <input type="text" id="tableTitle" placeholder="请输入表格标题（不超过30个中文字符）" maxlength="30">
             </div>
-            <div class="progress-step" data-step="2">
-                <div class="step-number">2</div>
-                <div class="step-label">输入属性</div>
+            <div class="form-group">
+                <label for="tableCount">表格数量</label>
+                <input type="number" id="tableCount" min="2" max="9" value="4">
             </div>
-            <div class="progress-step" data-step="3">
-                <div class="step-number">3</div>
-                <div class="step-label">比较排序</div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="isOriginal" checked>
+                <label for="isOriginal">表格内容为原创</label>
             </div>
-            <div class="progress-step" data-step="4">
-                <div class="step-number">4</div>
-                <div class="step-label">选择模板</div>
+            
+            <div id="sourceInput" class="form-group" style="display: none;">
+                <label for="tableSource">表格灵感来源</label>
+                <input type="text" id="tableSource" placeholder="请输入表格灵感来源（不超过15个中文字符）" maxlength="15" value="互联网热梗">
             </div>
-            <div class="progress-step" data-step="5">
-                <div class="step-number">5</div>
-                <div class="step-label">生成榜单</div>
+
+            <div id="authorInput" class="form-group" >
+                <label for="tableAuthor">填表人</label>
+                <input type="text" id="tableAuthor" placeholder="请输入表填表人（不超过15个中文字符）" maxlength="15" value=" ">
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn" onclick="nextPage(2)">下一步</button>
+            </div>
+            
+            <div class="preview-container">
+                <div id="preview1" class="preview-grid">
+                    <!-- 预览内容将通过JavaScript动态生成 -->
+                </div>
             </div>
         </div>
         
-        <!-- 步骤1: 上传图片 -->
-        <div class="step active" id="step1">
+        <!-- 第二页：输入描述 -->
+        <div id="page2" class="page">
+            <h2>输入描述</h2>
+            <div id="descriptionInputs">
+                <!-- 描述输入框将通过JavaScript动态生成 -->
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevPage(1)">上一步</button>
+                <button class="btn" onclick="nextPage(3)">下一步</button>
+            </div>
+        </div>
+        
+        <!-- 第三页：上传图片 -->
+        <div id="page3" class="page">
             <h2>上传图片</h2>
-            <p>上传多组图片并为它们命名。图片将被裁剪为正方形。</p>
-            
-            <div class="upload-area" id="upload-area">
-                <i>📁</i>
-                <p>拖放图片到这里，或点击选择文件</p>
-                <input type="file" id="file-input" multiple accept="image/*" style="display: none;">
-                <button class="btn" id="select-files-btn">选择文件</button>
+            <div id="imageUploads">
+                <!-- 图片上传区域将通过JavaScript动态生成 -->
             </div>
-            
-            <div class="image-list" id="image-list"></div>
-            
             <div class="btn-group">
-                <button class="btn" id="next-step1">下一步</button>
+                <button class="btn btn-secondary" onclick="prevPage(2)">上一步</button>
+                <button class="btn" onclick="nextPage(4)">下一步</button>
             </div>
         </div>
         
-        <!-- 步骤2: 输入属性 -->
-        <div class="step" id="step2">
-            <h2>输入属性</h2>
-            <p>请输入要比较的属性名称（例如：颜值、强度、人气等）</p>
-            
-            <div class="form-group">
-                <label for="attribute-input">属性名称</label>
-                <input type="text" id="attribute-input" class="form-control" placeholder="例如：颜值">
-            </div>
-            
+        <!-- 第四页：输出最终表格 -->
+        <div id="page4" class="page">
+            <h2>生成表格</h2>
+            <p>您的表格已生成，可以下载为JPG格式。</p>
             <div class="btn-group">
-                <button class="btn" id="prev-step2">上一步</button>
-                <button class="btn" id="next-step2">下一步</button>
-            </div>
-        </div>
-        
-        <!-- 步骤3: 比较排序 -->
-        <div class="step" id="step3">
-            <h2>比较排序</h2>
-            <p id="comparison-instruction">请选择<span id="attribute-name">属性</span>更强的一项：</p>
-            
-            <div class="comparison-container" id="comparison-container">
-                <!-- 这里会动态生成比较项目 -->
-            </div>
-            
-            <div class="btn-group">
-                <button class="btn" id="prev-step3">上一步</button>
-                <button class="btn" id="skip-comparison" style="display: none;">跳过剩余比较</button>
-                <button class="btn" id="next-step3" style="display: none;">下一步</button>
-            </div>
-        </div>
-        
-        <!-- 步骤4: 选择模板 -->
-        <div class="step" id="step4">
-            <h2>选择排行榜模板</h2>
-            <p>选择排行榜的样式和结构</p>
-            
-            <div class="form-group">
-                <label for="template-select">模板类型</label>
-                <select id="template-select" class="form-control">
-                    <option value="equal">等分型</option>
-                    <option value="pyramid">金字塔型</option>
-                    <option value="spindle">纺锤型</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="rows-input">行数</label>
-                <input type="number" id="rows-input" class="form-control" min="1" max="10" value="3">
-            </div>
-            
-            <div class="template-options">
-                <div class="template-option selected" data-template="equal">
-                    <div class="template-preview">
-                        <!-- 等分型预览 -->
-                        <div style="display: flex; height: 100%;">
-                            <div style="flex: 1; background: #4a6fa5; margin: 2px;"></div>
-                            <div style="flex: 1; background: #6b8cbc; margin: 2px;"></div>
-                            <div style="flex: 1; background: #8da9d4; margin: 2px;"></div>
-                        </div>
-                    </div>
-                    <div>等分型</div>
-                </div>
-                <div class="template-option" data-template="pyramid">
-                    <div class="template-preview">
-                        <!-- 金字塔型预览 -->
-                        <div style="display: flex; flex-direction: column; align-items: center; height: 100%;">
-                            <div style="width: 30%; height: 20%; background: #4a6fa5; margin: 2px;"></div>
-                            <div style="width: 60%; height: 30%; background: #6b8cbc; margin: 2px;"></div>
-                            <div style="width: 90%; height: 50%; background: #8da9d4; margin: 2px;"></div>
-                        </div>
-                    </div>
-                    <div>金字塔型</div>
-                </div>
-                <div class="template-option" data-template="spindle">
-                    <div class="template-preview">
-                        <!-- 纺锤型预览 -->
-                        <div style="display: flex; flex-direction: column; align-items: center; height: 100%;">
-                            <div style="width: 60%; height: 30%; background: #6b8cbc; margin: 2px;"></div>
-                            <div style="width: 90%; height: 40%; background: #4a6fa5; margin: 2px;"></div>
-                            <div style="width: 60%; height: 30%; background: #6b8cbc; margin: 2px;"></div>
-                        </div>
-                    </div>
-                    <div>纺锤型</div>
-                </div>
-            </div>
-            
-            <div class="btn-group">
-                <button class="btn" id="prev-step4">上一步</button>
-                <button class="btn" id="next-step4">下一步</button>
-            </div>
-        </div>
-        
-        <!-- 步骤5: 生成榜单 -->
-        <div class="step" id="step5">
-            <h2>生成排行榜</h2>
-            <p>您的排行榜已生成，可以保存图片或重新开始</p>
-            
-            <div class="ranking-preview">
-                <canvas id="ranking-canvas" width="800" height="600"></canvas>
-            </div>
-            
-            <div class="btn-group">
-                <button class="btn" id="prev-step5">上一步</button>
-                <button class="btn" id="save-ranking">保存图片</button>
-                <button class="btn btn-secondary" id="restart">重新开始</button>
+                <button class="btn btn-secondary" onclick="prevPage(3)">上一步</button>
+                <button class="btn" id="downloadBtn">下载表格</button>
             </div>
         </div>
     </div>
-
-    <script>
     
+    <footer>
+        <div class="preview-title">成图预览</div>
+        <div class="preview-container">
+            <div id="finalPreview" class="preview-grid">
+                <!-- 最终预览内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // 表格数量与布局的映射关系
+        const layoutMap = {
+            2: [2],
+            3: [3],
+            4: [2, 2],
+            5: [3, 2],
+            6: [3, 3],
+            7: [4, 3],
+            8: [4, 4],
+            9: [3, 3, 3]
+        };
+        
+        // 当前页面
+        let currentPage = 1;
+        
+        // 存储表格数据
+        let tableData = {
+            title: '',
+            count: 4,
+            isOriginal: true,
+            source: '互联网热梗',
+            descriptions: [],
+            images: [],
+            author:" "
+        };
+        
+        // 页面切换函数
+        function nextPage(pageNum) {
+            document.getElementById(`page${currentPage}`).classList.remove('active');
+            document.querySelectorAll('.progress-step')[currentPage - 1].classList.remove('active');
+            
+            currentPage = pageNum;
+            document.getElementById(`page${currentPage}`).classList.add('active');
+            document.querySelectorAll('.progress-step')[currentPage - 1].classList.add('active');
+            
+            // 根据页面更新内容
+            updatePageContent();
+        }
+        
+        function prevPage(pageNum) {
+            document.getElementById(`page${currentPage}`).classList.remove('active');
+            document.querySelectorAll('.progress-step')[currentPage - 1].classList.remove('active');
+            
+            currentPage = pageNum;
+            document.getElementById(`page${currentPage}`).classList.add('active');
+            document.querySelectorAll('.progress-step')[currentPage - 1].classList.add('active');
+        }
+        
+        // 更新页面内容
+        function updatePageContent() {
+            if (currentPage === 1) {
+                updatePreview1();
+            } else if (currentPage === 2) {
+                updatePage2();
+            } else if (currentPage === 3) {
+                updatePage3();
+            } else if (currentPage === 4) {
+                updatePage4();
+            }
+        }
+        
+        // 更新第一页预览
+        function updatePreview1() {
+            const tableCount = parseInt(document.getElementById('tableCount').value) || 4;
+            tableData.count = tableCount;
+            
+            const layout = layoutMap[tableCount];
+            const preview1 = document.getElementById('preview1');
+            preview1.innerHTML = '';
+            
+            // 添加标题
+            const title = document.getElementById('tableTitle').value || '表格标题';
+            tableData.title = title;
+            
+            const titleElement = document.createElement('div');
+            titleElement.className = 'preview-title';
+            titleElement.textContent = title;
+            preview1.appendChild(titleElement);
+            
+            // 添加来源信息
+            if (!tableData.isOriginal) {
+                const source = document.getElementById('tableSource').value || '互联网热梗';
+                tableData.source = source;
+                
+                const sourceElement = document.createElement('div');
+                sourceElement.className = 'preview-subtitle';
+                sourceElement.textContent = `表格来源：${source}`;
+                preview1.appendChild(sourceElement);
+            }
+
+            const author = document.getElementById('tableAuthor').value || ' ';
+            tableData.author = author;
+            
+            const authorElement = document.createElement('div');
+            authorElement.className = 'preview-subtitle';
+            authorElement.textContent = `填表人：${author}`;
+            preview1.appendChild(authorElement);
+            
+            // 添加表格项
+            let index = 0;
+            layout.forEach((rowCount, rowIndex) => {
+                const row = document.createElement('div');
+                row.className = 'grid-row';
+                
+                // 计算行间距和元素宽度
+                const itemWidth = `calc(${100 / rowCount}% - ${10 * (rowCount - 1) / rowCount}px)`;
+                
+                // 对于第二行及以后的行，如果与前一行数量不同，则居中排列
+                if (rowIndex > 0 && rowCount !== layout[rowIndex - 1]) {
+                    const prevRowCount = layout[rowIndex - 1];
+                    const offset = (prevRowCount - rowCount) / 2;
+                    row.style.marginLeft = `calc(${offset * (100 / prevRowCount)}% + ${offset * 5}px)`;
+                }
+                
+                for (let i = 0; i < rowCount; i++) {
+                    const gridItem = document.createElement('div');
+                    gridItem.className = 'grid-item';
+                    gridItem.style.width = itemWidth;
+                    
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'image-container';
+                    imageContainer.textContent = `图片 ${index + 1}`;
+                    
+                    const description = document.createElement('div');
+                    description.className = 'description';
+                    description.textContent = `描述 ${index + 1}`;
+                    
+                    gridItem.appendChild(imageContainer);
+                    gridItem.appendChild(description);
+                    row.appendChild(gridItem);
+                    
+                    index++;
+                }
+                
+                preview1.appendChild(row);
+            });
+            
+            // 更新底部预览
+            updateFinalPreview();
+        }
+        
+        // 更新第二页：描述输入
+        function updatePage2() {
+            const container = document.getElementById('descriptionInputs');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < tableData.count; i++) {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.textContent = `描述 ${i + 1}`;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = `请输入描述 ${i + 1}`;
+                input.value = tableData.descriptions[i] || '';
+                input.addEventListener('input', function() {
+                    tableData.descriptions[i] = this.value;
+                    updateFinalPreview();
+                });
+                
+                formGroup.appendChild(label);
+                formGroup.appendChild(input);
+                container.appendChild(formGroup);
+            }
+        }
+        
+                // 更新第三页：图片上传
+        function updatePage3() {
+            const container = document.getElementById('imageUploads');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < tableData.count; i++) {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.textContent = `图片 ${i + 1}`;
+                
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.setAttribute('data-index', i); // 添加索引标识
+                
+                // 创建预览容器
+                const previewContainer = document.createElement('div');
+                previewContainer.className = 'image-preview';
+                previewContainer.style.width = '100px';
+                previewContainer.style.height = '100px';
+                previewContainer.style.marginTop = '10px';
+                previewContainer.style.border = '1px solid #ccc';
+                previewContainer.style.display = 'none';
+                previewContainer.style.backgroundSize = 'cover';
+                previewContainer.style.backgroundPosition = 'center';
+                
+                // 创建裁剪模态框
+                const modal = document.createElement('div');
+                modal.className = 'crop-modal';
+                modal.style.display = 'none';
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+                modal.style.zIndex = '1000';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.backgroundColor = 'white';
+                modalContent.style.padding = '20px';
+                modalContent.style.borderRadius = '8px';
+                modalContent.style.maxWidth = '90%';
+                modalContent.style.maxHeight = '90%';
+                
+                const cropTitle = document.createElement('h3');
+                cropTitle.textContent = '裁剪图片';
+                cropTitle.style.marginBottom = '15px';
+                
+                const cropContainer = document.createElement('div');
+                cropContainer.style.width = '300px';
+                cropContainer.style.height = '300px';
+                cropContainer.style.marginBottom = '15px';
+                
+                const cropImage = document.createElement('img');
+                cropImage.id = `crop-image-${i}`;
+                cropImage.style.maxWidth = '100%';
+                cropImage.style.maxHeight = '100%';
+                
+                const buttonGroup = document.createElement('div');
+                buttonGroup.style.display = 'flex';
+                buttonGroup.style.justifyContent = 'space-between';
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.textContent = '取消';
+                cancelBtn.className = 'btn btn-secondary';
+                cancelBtn.style.marginRight = '10px';
+                
+                const confirmBtn = document.createElement('button');
+                confirmBtn.textContent = '确认裁剪';
+                confirmBtn.className = 'btn';
+                
+                cropContainer.appendChild(cropImage);
+                buttonGroup.appendChild(cancelBtn);
+                buttonGroup.appendChild(confirmBtn);
+                modalContent.appendChild(cropTitle);
+                modalContent.appendChild(cropContainer);
+                modalContent.appendChild(buttonGroup);
+                modal.appendChild(modalContent);
+                
+                input.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        const file = e.target.files[0];
+                        const index = parseInt(this.getAttribute('data-index'));
+                        
+                        // 创建文件读取器
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            // 显示裁剪模态框
+                            cropImage.src = event.target.result;
+                            modal.style.display = 'flex';
+                            
+                            // 初始化Cropper.js
+                            const cropper = new Cropper(cropImage, {
+                                aspectRatio: 1, // 强制1:1比例
+                                viewMode: 1,
+                                autoCropArea: 0.8,
+                                movable: true,
+                                zoomable: true,
+                                rotatable: false
+                            });
+                            
+                            // 取消按钮事件
+                            cancelBtn.onclick = function() {
+                                modal.style.display = 'none';
+                                cropper.destroy();
+                                input.value = ''; // 清空文件输入
+                            };
+                            
+                            // 确认裁剪按钮事件
+                            confirmBtn.onclick = function() {
+                                // 获取裁剪后的图片数据
+                                const croppedCanvas = cropper.getCroppedCanvas({
+                                    width: 300,
+                                    height: 300
+                                });
+                                
+                                // 转换为DataURL
+                                const croppedImageData = croppedCanvas.toDataURL('image/jpeg');
+                                
+                                // 存储到tableData
+                                tableData.images[index] = croppedImageData;
+                                
+                                // 更新预览
+                                previewContainer.style.backgroundImage = `url(${croppedImageData})`;
+                                previewContainer.style.display = 'block';
+                                
+                                // 更新最终预览
+                                updateFinalPreview();
+                                
+                                // 隐藏模态框并销毁Cropper实例
+                                modal.style.display = 'none';
+                                cropper.destroy();
+                            };
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                
+                formGroup.appendChild(label);
+                formGroup.appendChild(input);
+                formGroup.appendChild(previewContainer);
+                formGroup.appendChild(modal);
+                container.appendChild(formGroup);
+            }
+        }
+        
+        // 更新第四页：最终输出
+        function updatePage4() {
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.onclick = null; // 移除之前的事件监听器
+            
+            downloadBtn.addEventListener('click', async function() {
+                const originalBtnText = downloadBtn.textContent;
+                
+                // 显示加载状态
+                downloadBtn.textContent = '生成中...';
+                downloadBtn.disabled = true;
+                
+                try {
+                    // 直接捕获footer中的预览区域
+                    const footerPreview = document.querySelector('footer .preview-container');
+                    
+                    // 临时调整预览区域样式，确保完整显示
+                    const originalStyles = {
+                        width: footerPreview.style.width,
+                        height: footerPreview.style.height,
+                        overflow: footerPreview.style.overflow,
+                        transform: footerPreview.style.transform
+                    };
+                    
+                    // 设置固定尺寸以确保图片质量
+                    footerPreview.style.width = 'auto';
+                    footerPreview.style.height = 'auto';
+                    footerPreview.style.overflow = 'visible';
+                    footerPreview.style.transform = 'none';
+                    
+                    // 使用html2canvas截图
+                    const canvas = await html2canvas(footerPreview, {
+                        scale: 2,
+                        backgroundColor: '#000000',
+                        useCORS: true,
+                        logging: false,
+                        width: footerPreview.scrollWidth,
+                        height: footerPreview.scrollHeight,
+                        onclone: function(clonedDoc) {
+                            // 确保克隆的文档中所有样式正确应用
+                            const clonedPreview = clonedDoc.querySelector('.preview-container');
+                            if (clonedPreview) {
+                                clonedPreview.style.width = 'auto';
+                                clonedPreview.style.height = 'auto';
+                                clonedPreview.style.overflow = 'visible';
+                            }
+                        }
+                    });
+                    
+                    // 恢复原始样式
+                    footerPreview.style.width = originalStyles.width;
+                    footerPreview.style.height = originalStyles.height;
+                    footerPreview.style.overflow = originalStyles.overflow;
+                    footerPreview.style.transform = originalStyles.transform;
+                    
+                    // 将canvas转换为图片URL
+                    const imageDataURL = canvas.toDataURL('image/jpeg', 0.9);
+                    
+                    // 创建下载链接
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = imageDataURL;
+                    
+                    // 生成文件名
+                    const title = tableData.title || '表格';
+                    const fileName = `${title.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '_')}_${new Date().getTime()}.jpg`;
+                    downloadLink.download = fileName;
+                    
+                    // 触发下载
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    
+                    // 恢复按钮状态
+                    downloadBtn.textContent = originalBtnText;
+                    downloadBtn.disabled = false;
+                    
+                    // 显示成功消息
+                    alert('表格已成功保存为JPG图片！');
+                } catch (error) {
+                    console.error('生成图片时出错:', error);
+                    
+                    // 恢复按钮状态
+                    downloadBtn.textContent = originalBtnText;
+                    downloadBtn.disabled = false;
+                    
+                    alert('生成图片时出错，请重试。');
+                }
+            });
+        }
+        // 更新底部预览
+        function updateFinalPreview() {
+            const container = document.getElementById('finalPreview');
+            container.innerHTML = '';
+            
+            const layout = layoutMap[tableData.count];
+            
+            // 添加标题
+            const titleElement = document.createElement('div');
+            titleElement.className = 'preview-title';
+            titleElement.textContent = tableData.title || '表格标题';
+            titleElement.style.width = '100%';
+            container.appendChild(titleElement);
+            
+            // 添加来源信息
+            if (!tableData.isOriginal) {
+                const sourceElement = document.createElement('div');
+                sourceElement.className = 'preview-subtitle';
+                sourceElement.textContent = `表格来源：${tableData.source}`;
+                container.appendChild(sourceElement);
+            }
+
+            
+            const authorElement = document.createElement('div');
+            authorElement.className = 'preview-subtitle';
+            authorElement.textContent = `填表人：${tableData.author}`;
+            container.appendChild(authorElement);
+            
+            // 添加表格项
+            let index = 0;
+            layout.forEach((rowCount, rowIndex) => {
+                const row = document.createElement('div');
+                row.className = 'grid-row';
+                
+                // 计算行间距和元素宽度
+                const itemWidth = `calc(${100 / rowCount}% - ${10 * (rowCount - 1) / rowCount}px)`;
+                
+                // 对于第二行及以后的行，如果与前一行数量不同，则居中排列
+                if (rowIndex > 0 && rowCount !== layout[rowIndex - 1]) {
+                    const prevRowCount = layout[rowIndex - 1];
+                    const offset = (prevRowCount - rowCount) / 2;
+                    row.style.marginLeft = `calc(${offset * (100 / prevRowCount)}% px)`; 
+                }
+                
+                for (let i = 0; i < rowCount; i++) {
+                    const gridItem = document.createElement('div');
+                    gridItem.className = 'grid-item';
+                    
+                    // 确保每个gridItem大小完全相同
+                    // 使用固定尺寸而不是百分比
+                    const itemSize = 400; // 固定大小，单位px
+                    gridItem.style.width = `${itemSize}px`;
+                    gridItem.style.height = `${itemSize + 30}px`; // 图片容器高度 + 描述区域高度
+                    
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'image-container';
+                    imageContainer.style.height = `${itemSize}px`; // 固定图片容器高度
+                    
+                    // 绑定图片数据
+                    if (tableData.images[index]) {
+                        imageContainer.style.backgroundImage = `url(${tableData.images[index]})`;
+                        imageContainer.style.backgroundSize = 'cover';
+                        imageContainer.style.backgroundPosition = 'center';
+                    } else {
+                        imageContainer.style.backgroundColor = '#222'; // 保持背景色
+                    }
+                    
+                    const description = document.createElement('div');
+                    description.className = 'description';
+                    
+                    // 绑定描述数据
+                    if (tableData.descriptions[index]) {
+                        description.textContent = tableData.descriptions[index];
+                    } else {
+                        description.textContent = `描述 ${index + 1}`;
+                    }
+                    
+                    description.style.height = '60px'; // 固定描述区域高度
+                    description.style.lineHeight = '30px'; // 垂直居中文本
+                    
+                    gridItem.appendChild(imageContainer);
+                    gridItem.appendChild(description);
+                    row.appendChild(gridItem);
+                    
+                    index++;
+                }
+                
+                container.appendChild(row);
+            });
+        }
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 监听第一页的输入变化
+            document.getElementById('tableTitle').addEventListener('input', updatePreview1);
+            document.getElementById('tableCount').addEventListener('input', updatePreview1);
+            document.getElementById('tableAuthor').addEventListener('input', updatePreview1);
+            
+            // 监听原创性选择
+            document.getElementById('isOriginal').addEventListener('change', function() {
+                tableData.isOriginal = this.checked;
+                const sourceInput = document.getElementById('sourceInput');
+                if (this.checked) {
+                    sourceInput.style.display = 'none';
+                } else {
+                    sourceInput.style.display = 'block';
+                }
+                updatePreview1();
+            });
+            
+            // 监听来源输入
+            document.getElementById('tableSource').addEventListener('input', updatePreview1);
+            
+            // 初始化预览
+            updatePreview1();
+        });
     </script>
 </body>
 </html>
